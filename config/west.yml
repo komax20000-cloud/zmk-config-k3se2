@@ -3,11 +3,10 @@ manifest:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
     - name: keychron
-      url-base: https://github.com/Keychron
+      url-base: https://github.com
   projects:
-    - name: keychron_zmk_source
+    - name: zmk
       remote: keychron
-      repo: zmk
       revision: zmk
       import: app/west.yml
   self:
