@@ -9,4 +9,39 @@ on:
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    runs-on: ubuntu-latest
+    name: Build Test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache west modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-zephyr-modules
+        with:
+          path: |
+            modules/
+            tools/
+            zephyr/
+            bootloader/
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+
+      - name: Initialize West Workspace
+        run: |
+          pip3 install west
+          west init -l config
+          west update
+
+      - name: Build Firmware
+        run: |
+          west build -s zmk/app -b keychron_k3_se2 -- -DCONFIG_ZMK_KEYBOARD_NAME=\"K3_SE2_ZMK\" -DCONF_FILES=\"/workspace/zmk-config-k3se2/config/keychron_k3_se2.conf\" -DDTC_OVERLAY_FILE=\"/workspace/zmk-config-k3se2/config/keychron_k3_se2.overlay\"
+
+      - name: Upload Firmware Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keychron_k3_se2_firmware
+          path: build/zephyr/zmk.uf2
