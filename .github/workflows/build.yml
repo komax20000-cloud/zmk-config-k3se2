@@ -10,43 +10,44 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build Process
+    name: Force Build Process
     steps:
       - name: Checkout User Config
         uses: actions/checkout@v4
-        with:
-          path: user-config
 
-      - name: Checkout Keychron Official ZMK Source
-        uses: actions/checkout@v4
+      - name: Cache West Modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-zephyr-modules
         with:
-          repository: Keychron/zmk
-          ref: zmk
-          path: zmk-main
+          path: |
+            modules/
+            tools/
+            zephyr/
+            bootloader/
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/config/keychron_k3_se2.keymap') }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Initialize West Workspace
+      - name: Download Keychron ZMK Source Manually
         run: |
           pip3 install west
-          cd zmk-main
-          west init -m https://github.com --mr zmk ..
+          git clone --depth 1 -b zmk https://github.com zmk_source
+          cd zmk_source
+          west init -m https://github.com --mr zmk
           west update
-          
-      - name: Copy User Keymap into Workspace
-        run: |
-          cp user-config/config/keychron_k3_se2.keymap zmk-main/app/boards/arm/keychron_k3_se2/keychron_k3_se2.keymap
 
-      - name: Build Firmware
+      - name: Inject User Keymap and Build
         run: |
-          cd zmk-main
+          cp config/keychron_k3_se2.keymap zmk_source/app/boards/arm/keychron_k3_se2/keychron_k3_se2.keymap
+          cd zmk_source
           west build -s app -b keychron_k3_se2
 
       - name: Upload Firmware Artifact
         uses: actions/upload-artifact@v4
         with:
           name: keychron_k3_se2_firmware
-          path: zmk-main/build/zephyr/zmk.uf2
+          path: zmk_source/build/zephyr/zmk.uf2
