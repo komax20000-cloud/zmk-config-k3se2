@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Firmware
         run: |
-          west build -s zmk/app -b keychron_k3_se2 -- -DCONFIG_ZMK_KEYBOARD_NAME=\"K3_SE2_ZMK\" -DCONF_FILES=\"/workspace/zmk-config-k3se2/config/keychron_k3_se2.conf\" -DDTC_OVERLAY_FILE=\"/workspace/zmk-config-k3se2/config/keychron_k3_se2.overlay\"
+          west build -s zmk/app -b keychron_k3_se2
 
       - name: Upload Firmware Artifact
         uses: actions/upload-artifact@v4
