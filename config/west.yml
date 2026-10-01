@@ -1,9 +1,9 @@
 manifest:
   remotes:
     - name: zmkfirmware
-      url_base: https://github.com/zmkfirmware
+      url-base: https://github.com
     - name: keychron
-      url_base: https://github.com/Keychron
+      url-base: https://github.com
   projects:
     - name: zmk
       remote: keychron
