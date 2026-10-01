@@ -10,34 +10,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Force Build Process
+    name: Force Authentication Bypass Build
     steps:
       - name: Checkout User Config
         uses: actions/checkout@v4
-
-      - name: Cache West Modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-zephyr-modules
-        with:
-          path: |
-            modules/
-            tools/
-            zephyr/
-            bootloader/
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/config/keychron_k3_se2.keymap') }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Download Keychron ZMK Source Manually
+      - name: Download Keychron ZMK Source with Token Bypass
         run: |
           pip3 install west
-          git clone --depth 1 -b zmk https://github.com zmk_source
+          git clone --depth 1 -b zmk https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com zmk_source
           cd zmk_source
-          west init -m https://github.com --mr zmk
+          west init -m https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com --mr zmk
           west update
 
       - name: Inject User Keymap and Build
