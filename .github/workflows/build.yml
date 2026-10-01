@@ -9,38 +9,4 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    name: Build Test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Cache west modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-zephyr-modules
-        with:
-          path: |
-            modules/
-            tools/
-            zephyr/
-            bootloader/
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/west.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-
-      - name: Initialize ZMK Workspace
-        uses: zmkfirmware/zmk-actions-toolkit-init@main
-
-      - name: Build ZMK Firmware
-        uses: zmkfirmware/zmk-actions-toolkit-build@main
-        with:
-          board: keychron_k3_se2
-          config_path: config
-
-      - name: Upload Firmware Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: keychron_k3_se2_firmware
-          path: build/zephyr/zmk.uf2
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
